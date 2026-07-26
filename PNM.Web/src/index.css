@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* Light Mode Variables */
+:root {
+  --font-family: 'Outfit', sans-serif;
+  --bg-gradient: #f8f9fa;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --primary-color: #57a0d2;
+  --primary-hover: #4282aa;
+  --primary-glow: rgba(87, 160, 210, 0.35);
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --success-color: #17ba91;
+  --danger-color: #e84a67;
+  --warning-color: #e8ba30;
+}
+
+/* Dark Mode Variables Override */
+body.theme-dark {
+  --bg-gradient: radial-gradient(circle at top left, #1a1e36, #0e1118);
+  --sidebar-bg: rgba(18, 22, 35, 0.7);
+  --card-bg: rgba(25, 30, 48, 0.55);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.animate-slide {
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Fix header and sidebar in viewport, scroll only main content */
+.grid-wrapper {
+  display: grid !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  grid-template-rows: 50px 1fr !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+}
+
+#sidebar {
+  height: calc(100vh - 50px) !important;
+  overflow-y: auto !important;
+}
+
+.main {
+  height: calc(100vh - 50px) !important;
+  overflow-y: auto !important;
+  padding-bottom: 40px !important;
+}
+
+/* Force smaller header heights and perfect vertical centering */
+.header, .header-bar, .brand, .navigation, .navbar-menu, .slide-sidebar-btn, .toggle-sidebar-btn, .btn-toggle {
+  height: 50px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.header-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.brand {
+  width: 240px !important;
+  justify-content: center !important;
+}
+
+.navbar-menu {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.navbar-menu .menu-item, .navbar-menu .menu-item .btn {
+  height: 50px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ensure the user profile card has dynamic width to prevent overlap */
+.navbar-menu .menu-item.user-profile-item {
+  width: auto !important;
+  justify-content: flex-start !important;
+}
+
+/* Adjust notification badge vertical offset for 50px header */
+.navbar-menu .menu-item .btn .badge {
+  top: 8px !important;
+  right: 8px !important;
+}
+
+/* Theme-aware inputs override */
+input[type="text"], input[type="date"], input[type="number"], select, textarea {
+  color: var(--text-primary) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+body.theme-dark input[type="text"], body.theme-dark input[type="date"], body.theme-dark input[type="number"], body.theme-dark select, body.theme-dark textarea {
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Fix option element dropdown text readability in dark/light mode */
+option {
+  color: var(--text-primary) !important;
+  background: var(--sidebar-bg) !important;
+}
+
+/* Make header search bar look slim, centered and leave elegant margins */
+.navbar-search .input-group, 
+.navbar-search .form-control, 
+.navbar-search .input-group-prepend, 
+.navbar-search .input-group-text {
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 12px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.navbar-search .input-group-text {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-right: none !important;
+}
+
+.navbar-search .form-control {
+  border-left: none !important;
+}
+
+/* Show only one toggle button depending on viewport size */
+.btn-toggle {
+  display: none !important;
+}
+
+.sidebar-toggle-edge {
+  display: flex !important;
+}
+
+@media screen and (max-width: 768px) {
+  .btn-toggle {
+    display: flex !important;
+  }
+  .sidebar-toggle-edge {
+    display: none !important;
+  }
+}
+
+/* Custom Modal Overrides for Dark/Light Themes */
+.modal-content-custom {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.modal-content-custom .modal-header {
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 16px 20px !important;
+}
+
+.modal-content-custom .modal-body {
+  padding: 20px !important;
+}
+
+.modal-content-custom .modal-footer {
+  border-top: 1px solid var(--border-color) !important;
+  padding: 14px 20px !important;
+}
+
+.modal-content-custom .close {
+  color: var(--text-primary) !important;
+  text-shadow: none !important;
+  opacity: 0.7 !important;
+}
+
+.modal-content-custom .close:hover {
+  opacity: 1 !important;
+}
+
+/* Custom form inputs inside modal for consistency */
+.modal-content-custom .form-control {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+body.theme-dark .modal-content-custom .form-control {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}

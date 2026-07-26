@@ -1,0 +1,6 @@
+@PNM.API_HostAddress = http://localhost:5167
+
+GET {{PNM.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
