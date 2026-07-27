@@ -6,7 +6,7 @@ using PNM.Shared.Response;
 
 namespace PNM.API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase

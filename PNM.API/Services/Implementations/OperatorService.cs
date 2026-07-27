@@ -9,10 +9,12 @@ namespace PNM.Service.Services.Implementations;
 public class OperatorService : IOperatorService
 {
     private readonly PnmDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public OperatorService(PnmDbContext context)
+    public OperatorService(PnmDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<List<OperatorResponse>> GetAllAsync()
@@ -90,9 +92,8 @@ public class OperatorService : IOperatorService
             Status = request.Status ?? "Active",
             PhotoPath = request.PhotoPath,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = _currentUserService.UserId ?? 4,
             CreatedOn = DateTime.Now
-            // CreatedBy will be added after CurrentUserService
         };
 
         _context.TblOperators.Add(entity);
@@ -148,7 +149,7 @@ public class OperatorService : IOperatorService
         entity.Status = request.Status ?? entity.Status;
         entity.PhotoPath = request.PhotoPath;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null; // set properly once auth is wired up
 
         await _context.SaveChangesAsync();
 
@@ -180,7 +181,7 @@ public class OperatorService : IOperatorService
 
         entity.IsActive = false;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null; // set properly once auth is wired up
 
         await _context.SaveChangesAsync();
 

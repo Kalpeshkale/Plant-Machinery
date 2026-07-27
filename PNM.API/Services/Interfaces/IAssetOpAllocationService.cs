@@ -18,5 +18,7 @@ namespace PNM.Service.Services.Interfaces
         Task<AssetOpAllocationResponse?> UpdateAsync(int assetOpAllocId, AssetOpAllocationRequest request);
 
         Task<AssetOpAllocationResponse?> DeleteAsync(int assetOpAllocId);
+
+        Task<AssetOpAllocationResponse?> DeallocateAsync(int assetOpAllocId);
     }
 }

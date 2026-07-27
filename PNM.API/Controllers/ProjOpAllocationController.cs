@@ -6,7 +6,7 @@ using PNM.Shared.Response;
 
 namespace PNM.API.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class ProjOpAllocationController : ControllerBase
@@ -78,6 +78,15 @@ namespace PNM.API.Controllers
                 result,
                 "Project operator allocation deleted successfully."
             ));
+        }
+
+        [HttpPatch("{id}/deallocate")]
+        public async Task<IActionResult> Deallocate(int id)
+        {
+            var result = await _projOpAllocationService.DeallocateAsync(id);
+            if (result == null)
+                return NotFound(ApiResponseHelper.Failure<object>("Project operator allocation not found."));
+            return Ok(ApiResponseHelper.Success(result, "Operator deallocated successfully."));
         }
     }
 }

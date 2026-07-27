@@ -9,10 +9,12 @@ namespace PNM.Service.Services.Implementations;
 public class ProjOpAllocationService : IProjOpAllocationService
 {
     private readonly PnmDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public ProjOpAllocationService(PnmDbContext context)
+    public ProjOpAllocationService(PnmDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<List<ProjOpAllocationResponse>> GetAllAsync()
@@ -75,9 +77,8 @@ public class ProjOpAllocationService : IProjOpAllocationService
             ReleaseDate = request.ReleaseDate,
             Remarks = request.Remarks,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = _currentUserService.UserId ?? 4,
             CreatedOn = DateTime.Now
-            // CreatedBy will be added after CurrentUserService
         };
 
         _context.TblProjOpAllocations.Add(entity);
@@ -117,7 +118,7 @@ public class ProjOpAllocationService : IProjOpAllocationService
         entity.ReleaseDate = request.ReleaseDate;
         entity.Remarks = request.Remarks;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null;
 
         await _context.SaveChangesAsync();
 
@@ -134,7 +135,7 @@ public class ProjOpAllocationService : IProjOpAllocationService
 
         entity.IsActive = false;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null;
 
         await _context.SaveChangesAsync();
 
@@ -147,5 +148,22 @@ public class ProjOpAllocationService : IProjOpAllocationService
             ReleaseDate = entity.ReleaseDate,
             Remarks = entity.Remarks
         };
+    }
+
+    public async Task<ProjOpAllocationResponse?> DeallocateAsync(int projOpAllocId)
+    {
+        var entity = await _context.TblProjOpAllocations
+            .FirstOrDefaultAsync(x => x.ProjOpAllocId == projOpAllocId && x.IsActive);
+
+        if (entity == null)
+            return null;
+
+        entity.ReleaseDate = DateOnly.FromDateTime(DateTime.Today);
+        entity.ModifiedOn  = DateTime.Now;
+        entity.ModifiedBy  = null;
+
+        await _context.SaveChangesAsync();
+
+        return await GetByIdAsync(entity.ProjOpAllocId);
     }
 }

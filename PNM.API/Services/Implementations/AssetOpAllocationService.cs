@@ -9,10 +9,12 @@ namespace PNM.Service.Services.Implementations;
 public class AssetOpAllocationService : IAssetOpAllocationService
 {
     private readonly PnmDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AssetOpAllocationService(PnmDbContext context)
+    public AssetOpAllocationService(PnmDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<List<AssetOpAllocationResponse>> GetAllAsync()
@@ -75,9 +77,8 @@ public class AssetOpAllocationService : IAssetOpAllocationService
             ReleaseDate = request.ReleaseDate,
             Remarks = request.Remarks,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = _currentUserService.UserId ?? 4,
             CreatedOn = DateTime.Now
-            // CreatedBy will be added after CurrentUserService
         };
 
         _context.TblAssetOpAllocations.Add(entity);
@@ -117,7 +118,7 @@ public class AssetOpAllocationService : IAssetOpAllocationService
         entity.ReleaseDate = request.ReleaseDate;
         entity.Remarks = request.Remarks;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null;
 
         await _context.SaveChangesAsync();
 
@@ -134,7 +135,7 @@ public class AssetOpAllocationService : IAssetOpAllocationService
 
         entity.IsActive = false;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null;
 
         await _context.SaveChangesAsync();
 
@@ -147,5 +148,22 @@ public class AssetOpAllocationService : IAssetOpAllocationService
             ReleaseDate = entity.ReleaseDate,
             Remarks = entity.Remarks
         };
+    }
+
+    public async Task<AssetOpAllocationResponse?> DeallocateAsync(int assetOpAllocId)
+    {
+        var entity = await _context.TblAssetOpAllocations
+            .FirstOrDefaultAsync(x => x.AssetOpAllocId == assetOpAllocId && x.IsActive);
+
+        if (entity == null)
+            return null;
+
+        entity.ReleaseDate = DateOnly.FromDateTime(DateTime.Today);
+        entity.ModifiedOn  = DateTime.Now;
+        entity.ModifiedBy  = null;
+
+        await _context.SaveChangesAsync();
+
+        return await GetByIdAsync(entity.AssetOpAllocId);
     }
 }

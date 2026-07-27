@@ -6,7 +6,7 @@ using PNM.Shared.Response;
 
 namespace PNM.API.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class OperatorController : ControllerBase

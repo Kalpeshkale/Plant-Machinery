@@ -4204,11 +4204,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\kalpe\\source\\repos\\PNM.API\\PNM.API.csproj",
+      "projectUniqueName": "E:\\PNM_Updated\\PNM.API\\PNM.API.csproj",
       "projectName": "PNM.API",
-      "projectPath": "C:\\Users\\kalpe\\source\\repos\\PNM.API\\PNM.API.csproj",
+      "projectPath": "E:\\PNM_Updated\\PNM.API\\PNM.API.csproj",
       "packagesPath": "C:\\Users\\kalpe\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\kalpe\\source\\repos\\PNM.API\\obj\\",
+      "outputPath": "E:\\PNM_Updated\\PNM.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

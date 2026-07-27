@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PNM.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+134ac0594afa2a232b5789bc99878f514cea1b0e")]
 [assembly: System.Reflection.AssemblyProductAttribute("PNM.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PNM.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

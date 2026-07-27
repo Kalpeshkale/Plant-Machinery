@@ -9,10 +9,12 @@ namespace PNM.Service.Services.Implementations;
 public class AssetService : IAssetService
 {
     private readonly PnmDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AssetService(PnmDbContext context)
+    public AssetService(PnmDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<List<AssetResponse>> GetAllAsync()
@@ -151,9 +153,8 @@ public class AssetService : IAssetService
             AssetStatus = request.AssetStatus,
             Remarks = request.Remarks,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = _currentUserService.UserId ?? 4,
             CreatedOn = DateTime.Now
-            // CreatedBy will be added after CurrentUserService
         };
 
         _context.TblAssets.Add(entity);
@@ -231,7 +232,7 @@ public class AssetService : IAssetService
         entity.AssetStatus = request.AssetStatus;
         entity.Remarks = request.Remarks;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null; // set properly once auth is wired up
 
         await _context.SaveChangesAsync();
 
@@ -248,7 +249,7 @@ public class AssetService : IAssetService
 
         entity.IsActive = false;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null; // set properly once auth is wired up
 
         await _context.SaveChangesAsync();
 

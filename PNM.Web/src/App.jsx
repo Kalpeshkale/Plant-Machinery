@@ -10,6 +10,11 @@ import ProjectModule from './components/ProjectModule';
 import PermissionManager from './components/PermissionManager';
 import MenuManager from './components/MenuManager';
 import AssetMasters from './components/AssetMasters';
+import AssetModule from './components/AssetModule';
+import OperatorModule from './components/OperatorModule';
+import ProjectMachineModule from './components/ProjectMachineModule';
+import ProjectOperatorModule from './components/ProjectOperatorModule';
+import MachineOperatorModule from './components/MachineOperatorModule';
 import { Settings, Sliders, Sun, Moon } from 'lucide-react';
 
 // Mapping strings to Lucide icon components dynamically
@@ -66,7 +71,7 @@ export default function App() {
       setSidebarItems(items);
 
       // Auto-fallback active tab if current tab is no longer allowed/visible
-      const isAllowed = items.some(x => x.viewName === activeTab) || activeTab === "Dashboard" || activeTab === "RoleMapping" || activeTab === "MenuManagement" || activeTab === "AssetMasters";
+      const isAllowed = items.some(x => x.viewName === activeTab) || activeTab === "Dashboard" || activeTab === "RoleMapping" || activeTab === "MenuManagement" || activeTab === "AssetSpecs";
       if (!isAllowed && items.length > 0) {
         setActiveTab(items[0].viewName || "Dashboard");
       }
@@ -76,6 +81,7 @@ export default function App() {
       setSidebarItems([
         { id: 1, menuName: "Dashboard", viewName: "Dashboard", iconClass: "LayoutDashboard" },
         { id: 2, menuName: "Projects", viewName: "Projects", iconClass: "FolderClosed" },
+        { id: 3, menuName: "Assets", viewName: "Assets", iconClass: "Truck" },
         { id: 7, menuName: "Permissions", viewName: "RoleMapping", iconClass: "ShieldAlert" }
       ]);
     } finally {
@@ -98,8 +104,29 @@ export default function App() {
       case "asset":
       case "assets":
       case "assetmaster":
+        return <AssetModule />;
+      case "operator":
+      case "operators":
+      case "operatormaster":
+        return <OperatorModule />;
+      case "assetspecs":
       case "assetmasters":
         return <AssetMasters />;
+      case "projassetallocation":
+      case "projectmachine":
+      case "projectasset":
+      case "machinetoproject":
+        return <ProjectMachineModule />;
+      case "projopallocation":
+      case "projectoperator":
+      case "projectop":
+      case "projectoperatorallocation":
+        return <ProjectOperatorModule />;
+      case "assetopallocation":
+      case "machineoperator":
+      case "assetop":
+      case "machinetooperator":
+        return <MachineOperatorModule />;
       case "dashboard":
       default:
         return (
@@ -336,8 +363,8 @@ export default function App() {
                       <span className="menu-text">Menu Manager</span>
                     </a>
                   </li>
-                  <li className={activeTab === "AssetMasters" ? "active" : ""}>
-                    <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab("AssetMasters"); setSidebarOpen(false); }}>
+                  <li className={activeTab === "AssetSpecs" ? "active" : ""}>
+                    <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab("AssetSpecs"); setSidebarOpen(false); }}>
                       <i className="ti-layout-grid2"></i>
                       <span className="menu-text">Asset Specs</span>
                     </a>

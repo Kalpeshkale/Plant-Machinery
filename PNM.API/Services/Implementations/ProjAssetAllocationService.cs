@@ -9,10 +9,12 @@ namespace PNM.Service.Services.Implementations;
 public class ProjAssetAllocationService : IProjAssetAllocationService
 {
     private readonly PnmDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public ProjAssetAllocationService(PnmDbContext context)
+    public ProjAssetAllocationService(PnmDbContext context, ICurrentUserService currentUserService)
     {
         _context = context;
+        _currentUserService = currentUserService;
     }
 
     public async Task<List<ProjAssetAllocationResponse>> GetAllAsync()
@@ -75,9 +77,8 @@ public class ProjAssetAllocationService : IProjAssetAllocationService
             ReleaseDate = request.ReleaseDate,
             Remarks = request.Remarks,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = _currentUserService.UserId ?? 4,
             CreatedOn = DateTime.Now
-            // CreatedBy will be added after CurrentUserService
         };
 
         _context.TblProjAssetAllocations.Add(entity);
@@ -117,7 +118,7 @@ public class ProjAssetAllocationService : IProjAssetAllocationService
         entity.ReleaseDate = request.ReleaseDate;
         entity.Remarks = request.Remarks;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null;
 
         await _context.SaveChangesAsync();
 
@@ -134,7 +135,7 @@ public class ProjAssetAllocationService : IProjAssetAllocationService
 
         entity.IsActive = false;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
+        entity.ModifiedBy = null;
 
         await _context.SaveChangesAsync();
 
@@ -147,5 +148,22 @@ public class ProjAssetAllocationService : IProjAssetAllocationService
             ReleaseDate = entity.ReleaseDate,
             Remarks = entity.Remarks
         };
+    }
+
+    public async Task<ProjAssetAllocationResponse?> DeallocateAsync(int projAssetAllocId)
+    {
+        var entity = await _context.TblProjAssetAllocations
+            .FirstOrDefaultAsync(x => x.ProjAssetAllocId == projAssetAllocId && x.IsActive);
+
+        if (entity == null)
+            return null;
+
+        entity.ReleaseDate = DateOnly.FromDateTime(DateTime.Today);
+        entity.ModifiedOn  = DateTime.Now;
+        entity.ModifiedBy  = null;
+
+        await _context.SaveChangesAsync();
+
+        return await GetByIdAsync(entity.ProjAssetAllocId);
     }
 }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "cexnaSY4rD0=",
+  "dgSpecHash": "Qf4K84AvE3k=",
   "success": true,
-  "projectFilePath": "C:\\Users\\kalpe\\source\\repos\\PNM.API\\PNM.API.csproj",
+  "projectFilePath": "E:\\PNM_Updated\\PNM.API\\PNM.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\kalpe\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\kalpe\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

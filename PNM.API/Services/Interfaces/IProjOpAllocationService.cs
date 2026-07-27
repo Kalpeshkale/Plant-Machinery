@@ -18,5 +18,7 @@ namespace PNM.Service.Services.Interfaces
         Task<ProjOpAllocationResponse?> UpdateAsync(int projOpAllocId, ProjOpAllocationRequest request);
 
         Task<ProjOpAllocationResponse?> DeleteAsync(int projOpAllocId);
+
+        Task<ProjOpAllocationResponse?> DeallocateAsync(int projOpAllocId);
     }
 }
