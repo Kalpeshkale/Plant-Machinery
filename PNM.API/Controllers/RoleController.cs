@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PNM.Core.DTO.Role;
 using PNM.Service.Services.Interfaces;
@@ -20,6 +20,16 @@ namespace PNM.API.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
+        {
+            var data = await _roleService.GetAllAsync();
+            return Ok(ApiResponseHelper.Success(
+                data, "Role list retrieved successfully."));
+        }
+
+        // Public endpoint — used by the UI Simulate Role dropdown (no auth required)
+        [AllowAnonymous]
+        [HttpGet("list")]
+        public async Task<IActionResult> GetPublicList()
         {
             var data = await _roleService.GetAllAsync();
             return Ok(ApiResponseHelper.Success(

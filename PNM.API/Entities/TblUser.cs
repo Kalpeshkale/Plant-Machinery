@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -37,6 +37,48 @@ public partial class TblUser
 
     public bool IsActive { get; set; }
 
+    // ── Operator-specific fields (null for Admin/SIC rows) ────────────────
+
+    /// <summary>Operator code — also used as EmpId for login.</summary>
+    [StringLength(10)]
+    public string? OpCode { get; set; }
+
+    /// <summary>Type of operator e.g. Driver, Crane Operator.</summary>
+    [StringLength(100)]
+    public string? OpType { get; set; }
+
+    [StringLength(150)]
+    public string? FullName { get; set; }
+
+    public DateOnly? DateOfBirth { get; set; }
+
+    [StringLength(10)]
+    public string? Gender { get; set; }
+
+    [StringLength(15)]
+    public string? Mobile { get; set; }
+
+    [StringLength(20)]
+    public string? AadhaarNo { get; set; }
+
+    [StringLength(30)]
+    public string? LicenseNo { get; set; }
+
+    [StringLength(300)]
+    public string? Address { get; set; }
+
+    [Column("DOJ")]
+    public DateOnly? Doj { get; set; }
+
+    /// <summary>Employment status e.g. Active, On Leave, Resigned.</summary>
+    [StringLength(20)]
+    public string? Status { get; set; }
+
+    [StringLength(500)]
+    public string? PhotoPath { get; set; }
+
+    // ─────────────────────────────────────────────────────────────────────
+
     public int? CreatedBy { get; set; }
 
     [Column(TypeName = "datetime")]
@@ -47,23 +89,13 @@ public partial class TblUser
     [Column(TypeName = "datetime")]
     public DateTime? ModifiedOn { get; set; }
 
-    [ForeignKey("CreatedBy")]
-    [InverseProperty("InverseCreatedByNavigation")]
-    public virtual TblUser? CreatedByNavigation { get; set; }
+    // CreatedBy and ModifiedBy store AdminId from tbl_Admin (cross-table, no FK enforced).
+    // Self-referential FK constraints FK_tbl_User_CreatedBy / FK_tbl_User_ModifiedBy
+    // were intentionally dropped from the database.
 
     [ForeignKey("DeptId")]
     [InverseProperty("TblUsers")]
     public virtual MstDepartment Dept { get; set; } = null!;
-
-    [InverseProperty("CreatedByNavigation")]
-    public virtual ICollection<TblUser> InverseCreatedByNavigation { get; set; } = new List<TblUser>();
-
-    [InverseProperty("ModifiedByNavigation")]
-    public virtual ICollection<TblUser> InverseModifiedByNavigation { get; set; } = new List<TblUser>();
-
-    [ForeignKey("ModifiedBy")]
-    [InverseProperty("InverseModifiedByNavigation")]
-    public virtual TblUser? ModifiedByNavigation { get; set; }
 
     [ForeignKey("RoleId")]
     [InverseProperty("TblUsers")]

@@ -33,7 +33,7 @@ function FormGroup({ label, required, children }) {
 
 const API_BASE   = "http://localhost:5167/api/Asset";
 const API_DEPT   = "http://localhost:5167/api/Department";
-const API_CAT    = "http://localhost:5167/api/Category";
+// Category removed — hierarchy starts from Type
 const API_TYPE   = "http://localhost:5167/api/Type";
 const API_SUBTYPE= "http://localhost:5167/api/SubType";
 const API_MAKE   = "http://localhost:5167/api/Make";
@@ -49,7 +49,7 @@ const STATUS_BADGE = {
 
 const EMPTY_FORM = {
   deptId: 0, assetCode: '', assetName: '',
-  catId: 0, typeId: 0, subTypeId: 0, makeId: 0, modelId: 0, ownerId: 0,
+  typeId: 0, subTypeId: 0, makeId: 0, modelId: 0, ownerId: 0,
   registrationNo: '', chassisNo: '', engineNo: '', serialNo: '',
   meterType: 'Hours', currentMeterReading: 0,
   fuelType: 'Diesel', fuelTankCapacity: '',
@@ -61,7 +61,7 @@ export default function AssetModule() {
   /* ── State ── */
   const [assets,      setAssets]      = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [categories,  setCategories]  = useState([]);
+  // categories state removed — Category field not used
   const [allTypes,    setAllTypes]    = useState([]);
   const [allSubTypes, setAllSubTypes] = useState([]);
   const [allMakes,    setAllMakes]    = useState([]);
@@ -88,15 +88,14 @@ export default function AssetModule() {
   /* ── Data fetching ── */
   const fetchDropdowns = async () => {
     try {
-      const [dR, cR, tR, sR, mR, mdR, oR] = await Promise.all([
-        fetch(API_DEPT), fetch(API_CAT), fetch(API_TYPE),
+      const [dR, tR, sR, mR, mdR, oR] = await Promise.all([
+        fetch(API_DEPT), fetch(API_TYPE),
         fetch(API_SUBTYPE), fetch(API_MAKE), fetch(API_MODEL), fetch(API_OWNER)
       ]);
-      const [dJ, cJ, tJ, sJ, mJ, mdJ, oJ] = await Promise.all([
-        dR.json(), cR.json(), tR.json(), sR.json(), mR.json(), mdR.json(), oR.json()
+      const [dJ, tJ, sJ, mJ, mdJ, oJ] = await Promise.all([
+        dR.json(), tR.json(), sR.json(), mR.json(), mdR.json(), oR.json()
       ]);
       setDepartments(dJ.data || []);
-      setCategories(cJ.data || []);
       setAllTypes(tJ.data || []);
       setAllSubTypes(sJ.data || []);
       setAllMakes(mJ.data || []);
@@ -131,10 +130,7 @@ export default function AssetModule() {
     }));
   };
 
-  const handleCatChange = (e) => {
-    const catId = parseInt(e.target.value) || 0;
-    setForm(prev => ({ ...prev, catId, typeId: 0, subTypeId: 0, makeId: 0, modelId: 0 }));
-  };
+  // handleCatChange removed — Category field not used
   const handleTypeChange = (e) => {
     const typeId = parseInt(e.target.value) || 0;
     setForm(prev => ({ ...prev, typeId, subTypeId: 0, makeId: 0, modelId: 0 }));
@@ -149,7 +145,7 @@ export default function AssetModule() {
   };
 
   /* ── Cascading selects ── */
-  const filteredTypes    = allTypes.filter(t => t.catId     === form.catId);
+  const filteredTypes    = allTypes; // show all types — no category filter
   const filteredSubTypes = allSubTypes.filter(s => s.typeId  === form.typeId);
   const filteredMakes    = allMakes.filter(m => m.subTypeId  === form.subTypeId);
   const filteredModels   = allModels.filter(m => m.makeId    === form.makeId);
@@ -170,7 +166,7 @@ export default function AssetModule() {
     setEditingId(a.assetId);
     setForm({
       deptId: a.deptId || 0, assetCode: a.assetCode || '', assetName: a.assetName || '',
-      catId: a.catId || 0, typeId: a.typeId || 0, subTypeId: a.subTypeId || 0,
+      typeId: a.typeId || 0, subTypeId: a.subTypeId || 0,
       makeId: a.makeId || 0, modelId: a.modelId || 0, ownerId: a.ownerId || 0,
       registrationNo: a.registrationNo || '', chassisNo: a.chassisNo || '',
       engineNo: a.engineNo || '', serialNo: a.serialNo || '',
@@ -186,8 +182,8 @@ export default function AssetModule() {
   /* ── Submit ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.deptId || !form.catId || !form.typeId || !form.subTypeId || !form.makeId || !form.modelId || !form.ownerId) {
-      alert('Please select all required fields: Department, Category, Type, SubType, Make, Model and Owner Type.');
+    if (!form.deptId || !form.typeId || !form.subTypeId || !form.makeId || !form.modelId || !form.ownerId) {
+      alert('Please select all required fields: Department, Type, SubType, Make, Model and Owner before saving.');
       return;
     }
     setSaving(true);
@@ -509,17 +505,9 @@ export default function AssetModule() {
                   <SectionHeader label="Specifications &amp; Model" />
 
                   <FormRow>
-                    <FormGroup label="Category" required>
-                      <select name="catId" className="form-control" required value={form.catId} onChange={handleCatChange}>
-                        <option value="">-- Select Category --</option>
-                        {categories.map(c => (
-                          <option key={c.catId} value={c.catId}>{c.CatName || c.catName}</option>
-                        ))}
-                      </select>
-                    </FormGroup>
                     <FormGroup label="Asset Type" required>
                       <select name="typeId" className="form-control" required value={form.typeId}
-                        onChange={handleTypeChange} disabled={!form.catId}>
+                        onChange={handleTypeChange}>
                         <option value="">-- Select Type --</option>
                         {filteredTypes.map(t => (
                           <option key={t.typeId} value={t.typeId}>{t.typeName}</option>

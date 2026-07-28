@@ -242,32 +242,14 @@ export default function ProjectMachineModule() {
         <div className="card-body" style={{ padding:"16px 20px", display:"flex", alignItems:"center", flexWrap:"wrap", gap:"14px" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, flex:"none" }}>
             <i className="ti-truck" style={{ color:"var(--primary-color)", fontSize:"22px" }} />
-            <h4 style={{ margin:0, fontWeight:700, color:"var(--text-primary)", fontSize:"20px" }}>Project Allocation</h4>
+            <div style={{ display:"flex", flexDirection:"column", gap:2 }}>
+              <h4 style={{ margin:0, fontWeight:700, color:"var(--text-primary)", fontSize:"20px" }}>Project Allocation</h4>
+              <p style={{ color:"var(--text-secondary)", fontSize:"13px", margin:0 }}>
+                Allocate plant &amp; machinery assets to projects
+              </p>
+            </div>
           </div>
 
-          <div style={{ display:"flex", alignItems:"center", gap:10, flex:"1 1 300px", flexWrap:"wrap" }}>
-            {/* Project selector */}
-            <select
-              value={selectedProjId}
-              onChange={e => setSelectedProjId(e.target.value)}
-              className="form-control"
-              style={{ maxWidth:260, fontWeight:600 }}
-              id="pm-select-project"
-            >
-              <option value="">— Select Project —</option>
-              {projects.map(p => <option key={p.projId} value={p.projId}>{p.projName}</option>)}
-            </select>
-
-            {/* Date */}
-            <input
-              type="date"
-              value={allocDate}
-              onChange={e => setAllocDate(e.target.value)}
-              className="form-control"
-              style={{ maxWidth:170 }}
-              id="pm-alloc-date"
-            />
-          </div>
 
           {/* Action buttons */}
           <div style={{ display:"flex", gap:10, marginLeft:"auto" }}>
@@ -277,30 +259,39 @@ export default function ProjectMachineModule() {
             </button>
             <button className="btn btn-carolina btn-sm" onClick={handleSave} disabled={saving || !selectedProjId} id="btn-save-alloc"
               style={{ display:"flex", alignItems:"center", gap:6, minWidth:90 }}>
-              {saving ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} />Saving…</> : <><Save size={14} />Save</>}
+              {saving ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} />Savingâ€¦</> : <><Save size={14} />Save</>}
             </button>
           </div>
         </div>
       </div>
 
-      {/* -- Sub-header: count + filter tabs + search ----------- */}
+      {/* -- Toolbar: Project â†’ Date â†’ filter tabs â†’ search ----------- */}
       <div className="card" style={{ borderRadius:0, borderTop:"none", borderBottom:"none", marginBottom:0 }}>
         <div className="card-body" style={{ padding:"10px 20px", display:"flex", alignItems:"center", flexWrap:"wrap", gap:"12px" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <i className="ti-settings" style={{ color:"var(--text-secondary)" }} />
-            <span style={{ fontWeight:600, color:"var(--text-primary)" }}>Machinery List</span>
-            <span style={{ fontSize:"13px", color:"var(--text-secondary)" }}>
-              {selectedProjId ? `${allocatedCount} allocated` : "select a project to see allocations"}
-            </span>
-          </div>
 
-          {/* Search */}
-          <div className="input-group" style={{ maxWidth:240, marginLeft:"auto" }}>
-            <div className="input-group-prepend"><span className="input-group-text"><i className="ti-search" /></span></div>
-            <input className="form-control" placeholder="Search machine…" value={searchQ} onChange={e=>setSearchQ(e.target.value)} id="pm-search" />
-          </div>
+          {/* 1. Project selector */}
+          <select
+            value={selectedProjId}
+            onChange={e => setSelectedProjId(e.target.value)}
+            className="form-control"
+            style={{ maxWidth:260, fontWeight:600 }}
+            id="pm-select-project"
+          >
+            <option value="">â€” Select Project â€”</option>
+            {projects.map(p => <option key={p.projId} value={p.projId}>{p.projName}</option>)}
+          </select>
 
-          {/* Tab filters */}
+          {/* 2. Allocation date */}
+          <input
+            type="date"
+            value={allocDate}
+            onChange={e => setAllocDate(e.target.value)}
+            className="form-control"
+            style={{ maxWidth:160 }}
+            id="pm-alloc-date"
+          />
+
+          {/* 3. Filter tabs */}
           <div style={{ display:"flex", gap:4 }}>
             {TABS.map(tab => (
               <button key={tab}
@@ -316,6 +307,13 @@ export default function ProjectMachineModule() {
               </button>
             ))}
           </div>
+
+          {/* 4. Search â€” pushed to right */}
+          <div className="input-group" style={{ maxWidth:220, marginLeft:"auto" }}>
+            <div className="input-group-prepend"><span className="input-group-text"><i className="ti-search" /></span></div>
+            <input className="form-control" placeholder="Search machineâ€¦" value={searchQ} onChange={e=>setSearchQ(e.target.value)} id="pm-search" />
+          </div>
+
         </div>
       </div>
 
@@ -325,7 +323,7 @@ export default function ProjectMachineModule() {
           {loading ? (
             <div style={{ textAlign:"center", padding:"60px", color:"var(--text-secondary)" }}>
               <Loader2 size={32} style={{ animation:"spin 1s linear infinite", color:"var(--primary-color)" }} />
-              <p style={{ marginTop:12 }}>Loading machinery list…</p>
+              <p style={{ marginTop:12 }}>Loading machinery listï¿½</p>
             </div>
           ) : (
             <div style={{ overflowX:"auto" }}>
@@ -381,11 +379,11 @@ export default function ProjectMachineModule() {
                           <div style={{ fontWeight:600, color:"var(--text-primary)", fontSize:"13px" }}>{a.assetName}</div>
                           <div style={{ fontSize:"11px", color:"var(--text-secondary)", marginTop:2 }}>{a.assetCode}</div>
                         </td>
-                        <td style={{ fontSize:"13px", color:"var(--text-secondary)" }}>{a.typeName || "—"}</td>
-                        <td style={{ fontSize:"13px", color:"var(--text-secondary)" }}>{a.catName  || "—"}</td>
-                        <td style={{ fontSize:"12px", color:"var(--text-secondary)" }}>{a.allocSince || "—"}</td>
+                        <td style={{ fontSize:"13px", color:"var(--text-secondary)" }}>{a.typeName || "ï¿½"}</td>
+                        <td style={{ fontSize:"13px", color:"var(--text-secondary)" }}>{a.catName  || "ï¿½"}</td>
+                        <td style={{ fontSize:"12px", color:"var(--text-secondary)" }}>{a.allocSince || "ï¿½"}</td>
                         <td style={{ fontSize:"13px", fontWeight: isOnThis ? 600 : 400, color: isOnThis ? "var(--primary-color)" : "var(--text-secondary)" }}>
-                          {a.currentProject || "—"}
+                          {a.currentProject || "ï¿½"}
                         </td>
                         <td>
                           <StatusPill label={

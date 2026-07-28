@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using PNM.Infrastructure.Entities;
@@ -78,6 +78,8 @@ public partial class PnmDbContext : DbContext
 
     public virtual DbSet<TblServiceSchedule> TblServiceSchedules { get; set; }
 
+    public virtual DbSet<TblAdmin> TblAdmins { get; set; }
+
     public virtual DbSet<TblUser> TblUsers { get; set; }
 
     public virtual DbSet<TrnConcreteEntry> TrnConcreteEntries { get; set; }
@@ -88,12 +90,37 @@ public partial class PnmDbContext : DbContext
 
     public virtual DbSet<TrnLogDetail> TrnLogDetails { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=LABREZ;Database=DB_PNM_Testing;Trusted_Connection=True;TrustServerCertificate=True;");
+//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//         => optionsBuilder.UseSqlServer("Server=LABREZ;Database=DB_PNM_Testing;Trusted_Connection=True;TrustServerCertificate=True;");
+
+protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+{
+    if (!optionsBuilder.IsConfigured)
+    {
+    }
+}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<TblAdmin>(entity =>
+        {
+            entity.Property(e => e.UniqueId)
+                  .HasDefaultValueSql("(left(replace(CONVERT([varchar](36),newid()),'-',''),(8)))");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(e => e.Dept)
+                  .WithMany()
+                  .HasForeignKey(e => e.DeptId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Role)
+                  .WithMany()
+                  .HasForeignKey(e => e.RoleId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<MstCategory>(entity =>
         {
             entity.HasKey(e => e.CatId).HasName("PK_mst_AssetCat");
@@ -197,9 +224,8 @@ public partial class PnmDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tbl_Asset_Category");
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TblAssetCreatedByNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tbl_Asset_CreatedBy");
+            // FK_tbl_Asset_CreatedBy and FK_tbl_Asset_ModifiedBy dropped intentionally.
+            // CreatedBy/ModifiedBy store AdminId from tbl_Admin (managed in app code).
 
             entity.HasOne(d => d.Dept).WithMany(p => p.TblAssets)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -212,8 +238,6 @@ public partial class PnmDbContext : DbContext
             entity.HasOne(d => d.Model).WithMany(p => p.TblAssets)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tbl_Asset_Model");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.TblAssetModifiedByNavigations).HasConstraintName("FK_tbl_Asset_ModifiedBy");
 
             entity.HasOne(d => d.Owner).WithMany(p => p.TblAssets)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -237,11 +261,7 @@ public partial class PnmDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AssetCompliance_Asset");
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TblAssetComplianceCreatedByNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AssetCompliance_CreatedBy");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.TblAssetComplianceModifiedByNavigations).HasConstraintName("FK_AssetCompliance_ModifiedBy");
+            // FK_AssetCompliance_CreatedBy and FK_AssetCompliance_ModifiedBy dropped.
         });
 
         modelBuilder.Entity<TblAssetDoc>(entity =>
@@ -316,11 +336,7 @@ public partial class PnmDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AssetOpAllocation_Asset");
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TblAssetOpAllocationCreatedByNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AssetOpAllocation_CreatedBy");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.TblAssetOpAllocationModifiedByNavigations).HasConstraintName("FK_AssetOpAllocation_ModifiedBy");
+            // FK_AssetOpAllocation_CreatedBy and FK_AssetOpAllocation_ModifiedBy dropped.
 
             entity.HasOne(d => d.Op).WithMany(p => p.TblAssetOpAllocations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -393,11 +409,7 @@ public partial class PnmDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ProjAssetAllocation_Asset");
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TblProjAssetAllocationCreatedByNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ProjAssetAllocation_CreatedBy");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.TblProjAssetAllocationModifiedByNavigations).HasConstraintName("FK_ProjAssetAllocation_ModifiedBy");
+            // FK_ProjAssetAllocation_CreatedBy and FK_ProjAssetAllocation_ModifiedBy dropped.
 
             entity.HasOne(d => d.Proj).WithMany(p => p.TblProjAssetAllocations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -409,11 +421,7 @@ public partial class PnmDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TblProjOpAllocationCreatedByNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ProjOpAllocation_CreatedBy");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.TblProjOpAllocationModifiedByNavigations).HasConstraintName("FK_ProjOpAllocation_ModifiedBy");
+            // FK_ProjOpAllocation_CreatedBy and FK_ProjOpAllocation_ModifiedBy dropped.
 
             entity.HasOne(d => d.Op).WithMany(p => p.TblProjOpAllocations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -429,19 +437,13 @@ public partial class PnmDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TblProjectCreatedByNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tbl_Project_CreatedBy");
+            // FK_tbl_Project_CreatedBy, FK_tbl_Project_ModifiedBy,
+            // FK_tbl_Project_SiteInCharge, FK_tbl_Project_ProjectManager dropped.
+            // These columns now store AdminId from tbl_Admin (managed in app code).
 
             entity.HasOne(d => d.Dept).WithMany(p => p.TblProjects)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tbl_Project_Department");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.TblProjectModifiedByNavigations).HasConstraintName("FK_tbl_Project_ModifiedBy");
-
-            entity.HasOne(d => d.ProjectManager).WithMany(p => p.TblProjectProjectManagers).HasConstraintName("FK_tbl_Project_ProjectManager");
-
-            entity.HasOne(d => d.SiteInCharge).WithMany(p => p.TblProjectSiteInCharges).HasConstraintName("FK_tbl_Project_SiteInCharge");
         });
 
         modelBuilder.Entity<TblServiceAttachment>(entity =>
@@ -473,13 +475,13 @@ public partial class PnmDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InverseCreatedByNavigation).HasConstraintName("FK_tbl_User_CreatedBy");
+            // NOTE: FK_tbl_User_CreatedBy and FK_tbl_User_ModifiedBy were intentionally
+            // dropped. CreatedBy/ModifiedBy now store AdminId from tbl_Admin (cross-table).
+            // No SQL FK is enforced — relationship is managed in application code.
 
             entity.HasOne(d => d.Dept).WithMany(p => p.TblUsers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tbl_User_Department");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.InverseModifiedByNavigation).HasConstraintName("FK_tbl_User_ModifiedBy");
 
             entity.HasOne(d => d.Role).WithMany(p => p.TblUsers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -510,17 +512,12 @@ public partial class PnmDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Sicstatus).HasDefaultValue("Pending");
 
-            entity.HasOne(d => d.AdminByNavigation).WithMany(p => p.TrnDailyLogAdminByNavigations).HasConstraintName("FK_DailyLog_AdminBy");
+            // FK_DailyLog_AdminBy, FK_DailyLog_CreatedBy, FK_DailyLog_ModifiedBy,
+            // FK_DailyLog_SICBy all dropped (references to tbl_User, managed in app code).
 
             entity.HasOne(d => d.Asset).WithMany(p => p.TrnDailyLogs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DailyLog_Asset");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TrnDailyLogCreatedByNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DailyLog_CreatedBy");
-
-            entity.HasOne(d => d.ModifiedByNavigation).WithMany(p => p.TrnDailyLogModifiedByNavigations).HasConstraintName("FK_DailyLog_ModifiedBy");
 
             entity.HasOne(d => d.Op).WithMany(p => p.TrnDailyLogs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -533,9 +530,8 @@ public partial class PnmDbContext : DbContext
             entity.HasOne(d => d.Shift).WithMany(p => p.TrnDailyLogs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DailyLog_Shift");
-
-            entity.HasOne(d => d.SicbyNavigation).WithMany(p => p.TrnDailyLogSicbyNavigations).HasConstraintName("FK_DailyLog_SICBy");
         });
+
 
         modelBuilder.Entity<TrnFuelLog>(entity =>
         {

@@ -1,4 +1,4 @@
-﻿namespace PNM.Core.DTO.Auth
+namespace PNM.Core.DTO.Auth
 {
     public class LoginResponse
     {
@@ -12,6 +12,9 @@
 
         public string RoleName { get; set; } = string.Empty;
 
+        /// <summary>"ADMIN" = from tbl_Admin | "OPERATOR" = from tbl_User</summary>
+        public string UserSource { get; set; } = string.Empty;
+
         public string Token { get; set; } = string.Empty;
     }
-}
+}

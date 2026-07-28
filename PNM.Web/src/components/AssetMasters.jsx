@@ -20,10 +20,10 @@ export default function AssetMasters() {
   const [editingId, setEditingId] = useState(null);
 
   // Form states
-  const [typeForm, setTypeForm] = useState({ typeName: "", catId: 1 });
-  const [subtypeForm, setSubtypeForm] = useState({ subTypeName: "", typeId: 1, assetUnit: "Hours", outputUnit: "Hours", fuelType: "Diesel", fuelUnit: "Litres" });
-  const [makeForm, setMakeForm] = useState({ makeName: "", subTypeId: 1 });
-  const [modelForm, setModelForm] = useState({ modelNo: "", makeId: 1 });
+  const [typeForm, setTypeForm] = useState({ typeName: "", catId: null });
+  const [subtypeForm, setSubtypeForm] = useState({ subTypeName: "", typeId: 0, assetUnit: "Hours", outputUnit: "Hours", fuelType: "Diesel", fuelUnit: "Litres" });
+  const [makeForm, setMakeForm] = useState({ makeName: "", subTypeId: 0 });
+  const [modelForm, setModelForm] = useState({ modelNo: "", makeId: 0 });
 
   useEffect(() => {
     loadAllData();
@@ -70,7 +70,7 @@ export default function AssetMasters() {
     setModalType(target);
     setEditingId(null);
     if (target === "Type") {
-      setTypeForm({ typeName: "", catId: 1 });
+      setTypeForm({ typeName: "", catId: null });
     } else if (target === "SubType") {
       setSubtypeForm({ subTypeName: "", typeId: types[0]?.typeId || 1, assetUnit: "Hours", outputUnit: "Hours", fuelType: "Diesel", fuelUnit: "Litres" });
     } else if (target === "Make") {
@@ -85,7 +85,7 @@ export default function AssetMasters() {
     setModalType(target);
     if (target === "Type") {
       setEditingId(item.typeId);
-      setTypeForm({ typeName: item.typeName, catId: item.catId || 1 });
+      setTypeForm({ typeName: item.typeName, catId: null });
     } else if (target === "SubType") {
       setEditingId(item.subTypeId);
       setSubtypeForm({ subTypeName: item.subTypeName, typeId: item.typeId || 1, assetUnit: item.assetUnit || "Hours", outputUnit: item.outputUnit || "Hours", fuelType: item.fuelType || "Diesel", fuelUnit: item.fuelUnit || "Litres" });
@@ -128,7 +128,11 @@ export default function AssetMasters() {
         body: JSON.stringify(bodyData)
       });
 
-      if (!res.ok) throw new Error("Failed to save changes.");
+      if (!res.ok) {
+        let errMsg = `Server error ${res.status}`;
+        try { const j = await res.json(); errMsg = j?.message || j?.title || errMsg; } catch(_) {}
+        throw new Error(errMsg);
+      }
       setIsModalOpen(false);
       loadAllData();
     } catch (err) {

@@ -20,7 +20,7 @@ public partial class TblAsset
 
     public int DeptId { get; set; }
 
-    [StringLength(30)]
+    [StringLength(200)]
     [Unicode(false)]
     public string AssetCode { get; set; } = null!;
 

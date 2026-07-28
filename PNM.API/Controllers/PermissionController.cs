@@ -26,6 +26,15 @@ namespace PNM.API.Controllers
             return Ok(ApiResponseHelper.Success(data, "User menu permissions retrieved successfully."));
         }
 
+        // Used by UI Simulate Role picker — fetches menu by roleId directly
+        [HttpGet("role/{roleId}")]
+        public async Task<IActionResult> GetRoleMenuPermissions(int roleId)
+        {
+            // Reuses existing service: when userId has no match, it falls back to roleId
+            var data = await _permissionService.GetUserMenuPermissionsAsync(roleId);
+            return Ok(ApiResponseHelper.Success(data, "Role menu permissions retrieved successfully."));
+        }
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAllMenuPermissions()
         {

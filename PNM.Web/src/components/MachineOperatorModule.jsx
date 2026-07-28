@@ -58,7 +58,6 @@ export default function MachineOperatorModule() {
 
   useEffect(() => { load(); }, []);
 
-  // When project changes in form, reset asset and operator
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "projId") {
@@ -68,7 +67,7 @@ export default function MachineOperatorModule() {
     }
   };
 
-  // Machines allocated to the selected project (active only)
+
   const projectMachines = useMemo(() =>
     projAssets.filter(pa => String(pa.projId) === String(form.projId)),
     [projAssets, form.projId]
@@ -86,7 +85,7 @@ export default function MachineOperatorModule() {
       const pa = projAssets.find(a => a.assetId === r.assetId) || null;
       const po = projOps.find(o => o.opId === r.opId) || null;
       // Try to find project from active allocations; fall back to any record match
-      const projName = pa?.projName || po?.projName || "—";
+      const projName = pa?.projName || po?.projName || "ï¿½";
       return { ...r, projName };
     });
   }, [records, projAssets, projOps]);
@@ -193,7 +192,7 @@ export default function MachineOperatorModule() {
           {loading ? (
             <div style={{ textAlign:"center", padding:"60px", color:"var(--text-secondary)" }}>
               <Loader2 size={32} style={{ animation:"spin 1s linear infinite", color:"var(--primary-color)" }} />
-              <p style={{ marginTop:12 }}>Loading assignments…</p>
+              <p style={{ marginTop:12 }}>Loading assignmentsï¿½</p>
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign:"center", padding:"60px", color:"var(--text-secondary)" }}>
@@ -222,7 +221,7 @@ export default function MachineOperatorModule() {
                       <td style={{ fontSize:"12px" }}>{r.allocationDate}</td>
                       <td style={{ fontSize:"12px" }}>{r.releaseDate || <span style={{ color:"var(--text-secondary)", fontStyle:"italic" }}>Active</span>}</td>
                       <td>{isActive(r) ? <span className="badge badge-pill badge-success" style={{ fontSize:"11px" }}>Active</span> : <span className="badge badge-pill badge-secondary" style={{ fontSize:"11px" }}>Released</span>}</td>
-                      <td style={{ fontSize:"12px", color:"var(--text-secondary)" }}>{r.remarks||"—"}</td>
+                      <td style={{ fontSize:"12px", color:"var(--text-secondary)" }}>{r.remarks||"ï¿½"}</td>
                       <td>
                         <div style={{ display:"flex", gap:"4px" }}>
                           <button className="btn btn-sm btn-outline-secondary" style={{ padding:"3px 8px" }} title="Edit" onClick={()=>openEdit(r)}><i className="ti-pencil" /></button>
@@ -252,7 +251,7 @@ export default function MachineOperatorModule() {
                   <div>
                     <h5 className="modal-title" style={{ margin:0, fontWeight:700, color:"var(--text-primary)" }}>{editingId?"Edit Assignment":"Assign Operator to Machine"}</h5>
                     <p style={{ margin:0, fontSize:"12px", color:"var(--text-secondary)" }}>
-                      Select a project first — machine & operator lists will filter to that project.
+                      Select a project first ï¿½ machine & operator lists will filter to that project.
                     </p>
                   </div>
                 </div>
@@ -260,17 +259,17 @@ export default function MachineOperatorModule() {
               </div>
               <div className="modal-body" style={{ padding:"24px" }}>
                 <form onSubmit={handleSubmit} id="machine-op-form">
-                  <SectionHeader label="Step 1 — Select Project" />
+                  <SectionHeader label="Step 1 ï¿½ Select Project" />
                   <FormGroup label="Project" required>
                     <select className="form-control" name="projId" value={form.projId} onChange={handleChange} required id="mo-proj">
-                      <option value="">Select project…</option>
+                      <option value="">Select projectï¿½</option>
                       {projects.map(p=><option key={p.projId} value={p.projId}>{p.projName}</option>)}
                     </select>
                   </FormGroup>
 
                   {form.projId && (
                     <>
-                      <SectionHeader label="Step 2 — Assign" />
+                      <SectionHeader label="Step 2 ï¿½ Assign" />
                       {projectMachines.length === 0 && (
                         <div className="alert alert-warning" style={{ fontSize:"12px", marginBottom:12 }}>
                           <i className="ti-alert" style={{ marginRight:6 }} />No machines are allocated to this project yet. Go to <strong>Project Machine</strong> first.
@@ -284,13 +283,13 @@ export default function MachineOperatorModule() {
                       <FormRow>
                         <FormGroup label="Machine" required>
                           <select className="form-control" name="assetId" value={form.assetId} onChange={handleChange} required id="mo-asset">
-                            <option value="">Select machine…</option>
+                            <option value="">Select machineï¿½</option>
                             {projectMachines.map(pa=><option key={pa.assetId} value={pa.assetId}>{pa.assetName}</option>)}
                           </select>
                         </FormGroup>
                         <FormGroup label="Operator" required>
                           <select className="form-control" name="opId" value={form.opId} onChange={handleChange} required id="mo-op">
-                            <option value="">Select operator…</option>
+                            <option value="">Select operatorï¿½</option>
                             {projectOperators.map(po=><option key={po.opId} value={po.opId}>{po.opFullName}</option>)}
                           </select>
                         </FormGroup>
@@ -308,14 +307,14 @@ export default function MachineOperatorModule() {
                     </FormGroup>
                   </FormRow>
                   <FormGroup label="Remarks">
-                    <textarea className="form-control" name="remarks" rows={2} value={form.remarks} onChange={handleChange} placeholder="Optional remarks…" id="mo-remarks" />
+                    <textarea className="form-control" name="remarks" rows={2} value={form.remarks} onChange={handleChange} placeholder="Optional remarksï¿½" id="mo-remarks" />
                   </FormGroup>
                 </form>
               </div>
               <div className="modal-footer" style={{ borderTop:"1px solid var(--border-color)", padding:"14px 24px", display:"flex", justifyContent:"flex-end", gap:"10px" }}>
                 <button type="button" className="btn btn-outline-secondary" onClick={closeModal}><i className="ti-close" style={{ marginRight:6 }} />Cancel</button>
                 <button type="submit" form="machine-op-form" className="btn btn-carolina" disabled={saving||!form.projId}>
-                  {saving ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite", marginRight:6 }} />Saving…</> : <><i className="ti-save" style={{ marginRight:6 }} />{editingId?"Update":"Save Assignment"}</>}
+                  {saving ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite", marginRight:6 }} />Savingï¿½</> : <><i className="ti-save" style={{ marginRight:6 }} />{editingId?"Update":"Save Assignment"}</>}
                 </button>
               </div>
             </div>

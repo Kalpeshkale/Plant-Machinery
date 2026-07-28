@@ -11,7 +11,7 @@ import PermissionManager from './components/PermissionManager';
 import MenuManager from './components/MenuManager';
 import AssetMasters from './components/AssetMasters';
 import AssetModule from './components/AssetModule';
-import OperatorModule from './components/OperatorModule';
+import UserModule from './components/UserModule';
 import ProjectMachineModule from './components/ProjectMachineModule';
 import ProjectOperatorModule from './components/ProjectOperatorModule';
 import MachineOperatorModule from './components/MachineOperatorModule';
@@ -29,14 +29,12 @@ const ICON_MAP = {
   Settings: Settings
 };
 
-const USERS = [
-  { id: 1, name: "Alexander Vance", role: "Administrator", roleId: 1 },
-  { id: 5, name: "Sarah Jenkins", role: "Site Incharge", roleId: 5 },
-  { id: 6, name: "Ramesh Kumar", role: "Operator", roleId: 6 }
-];
+const API_BASE = 'http://localhost:5167';
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(USERS[0]);
+  const [roles, setRoles] = useState([]);
+  const [loadingRoles, setLoadingRoles] = useState(true);
+  const [currentRole, setCurrentRole] = useState(null); // { roleId, role }
   const [sidebarItems, setSidebarItems] = useState([]);
   const [loadingMenu, setLoadingMenu] = useState(true);
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -45,9 +43,15 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  // Fetch roles from DB on mount
   useEffect(() => {
-    fetchUserMenu();
-  }, [currentUser]);
+    fetchRoles();
+  }, []);
+
+  // Re-fetch sidebar menu whenever selected role changes
+  useEffect(() => {
+    if (currentRole) fetchUserMenu();
+  }, [currentRole]);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -59,25 +63,47 @@ export default function App() {
     }
   }, [isDarkMode]);
 
+  const fetchRoles = async () => {
+    setLoadingRoles(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/Role/list`);
+      if (!res.ok) throw new Error('Failed to fetch roles');
+      const json = await res.json();
+      const activeRoles = (json.data || []).filter(r => r.isActive !== false);
+      setRoles(activeRoles);
+      if (activeRoles.length > 0) setCurrentRole(activeRoles[0]);
+    } catch (err) {
+      console.error('Could not load roles from DB, using fallback.', err);
+      // Fallback roles matching DB
+      const fallback = [
+        { roleId: 1, role: 'Admin' },
+        { roleId: 6, role: 'Operator' },
+        { roleId: 7, role: 'Site In Charge' }
+      ];
+      setRoles(fallback);
+      setCurrentRole(fallback[0]);
+    } finally {
+      setLoadingRoles(false);
+    }
+  };
+
   const fetchUserMenu = async () => {
+    if (!currentRole) return;
     setLoadingMenu(true);
     try {
-      const res = await fetch(`http://localhost:5167/api/Permission/user/${currentUser.id}`);
+      const res = await fetch(`${API_BASE}/api/Permission/role/${currentRole.roleId}`);
       if (!res.ok) throw new Error("Failed to fetch menu permissions.");
       const json = await res.json();
 
-      // Filter out only visible menu items
       const items = (json.data || []).filter(x => x.isVisible);
       setSidebarItems(items);
 
-      // Auto-fallback active tab if current tab is no longer allowed/visible
       const isAllowed = items.some(x => x.viewName === activeTab) || activeTab === "Dashboard" || activeTab === "RoleMapping" || activeTab === "MenuManagement" || activeTab === "AssetSpecs";
       if (!isAllowed && items.length > 0) {
         setActiveTab(items[0].viewName || "Dashboard");
       }
     } catch (err) {
       console.error("Using fallback navigation items.");
-      // Standard fallback menus for offline testing
       setSidebarItems([
         { id: 1, menuName: "Dashboard", viewName: "Dashboard", iconClass: "LayoutDashboard" },
         { id: 2, menuName: "Projects", viewName: "Projects", iconClass: "FolderClosed" },
@@ -108,7 +134,10 @@ export default function App() {
       case "operator":
       case "operators":
       case "operatormaster":
-        return <OperatorModule />;
+      case "user":
+      case "users":
+      case "usermanagement":
+        return <UserModule />;
       case "assetspecs":
       case "assetmasters":
         return <AssetMasters />;
@@ -132,7 +161,7 @@ export default function App() {
         return (
           <div className="animate-fade">
             <div style={{ marginBottom: '28px' }}>
-              <h2 style={{ fontSize: '26px', fontWeight: 600 }}>Welcome Back, {currentUser.name}!</h2>
+              <h2 style={{ fontSize: '26px', fontWeight: 600 }}>Welcome, {currentRole?.role ?? ''}!</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginTop: '4px' }}>Overview of fleet maintenance, logging statuses, and pending tasks.</p>
             </div>
 
@@ -176,7 +205,7 @@ export default function App() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>Active User Role</span>
-                    <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{currentUser.role}</span>
+                    <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{currentRole?.role ?? '-'}</span>
                   </div>
                 </div>
               </div>
@@ -238,30 +267,34 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ca3af', fontSize: '14px' }}>
               <UserCheck size={18} />
               <span style={{ fontWeight: 500 }}>Simulate Role:</span>
-              <select
-                value={currentUser.id}
-                onChange={(e) => {
-                  const user = USERS.find(u => u.id === parseInt(e.target.value));
-                  if (user) setCurrentUser(user);
-                }}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid var(--border-color)',
-                  color: '#fff',
-                  borderRadius: '6px',
-                  padding: '4px 10px',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                {USERS.map(u => (
-                  <option key={u.id} value={u.id} style={{ background: '#131824' }}>
-                    {u.name} ({u.role})
-                  </option>
-                ))}
-              </select>
+              {loadingRoles ? (
+                <span style={{ fontSize: '12px', opacity: 0.6 }}>Loading...</span>
+              ) : (
+                <select
+                  value={currentRole?.roleId ?? ''}
+                  onChange={(e) => {
+                    const selected = roles.find(r => r.roleId === parseInt(e.target.value));
+                    if (selected) setCurrentRole(selected);
+                  }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid var(--border-color)',
+                    color: '#fff',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {roles.map(r => (
+                    <option key={r.roleId} value={r.roleId} style={{ background: '#131824' }}>
+                      {r.role}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* Template Header Search */}
@@ -303,11 +336,11 @@ export default function App() {
               <div className="menu-item user-profile-item d-flex align-items-center" style={{ padding: '0 20px', height: '50px', borderLeft: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: '#fff', fontSize: '13px' }}>
-                    {currentUser.name[0]}
+                    {currentRole?.role?.[0] ?? '?'}
                   </div>
                   <div style={{ textAlign: 'left', lineHeight: 1.1, whiteSpace: 'nowrap' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>{currentUser.name}</div>
-                    <small style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{currentUser.role}</small>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>{currentRole?.role ?? 'Loading...'}</div>
+                    <small style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Simulated Role</small>
                   </div>
                 </div>
               </div>
@@ -351,8 +384,8 @@ export default function App() {
                 );
               })}
 
-              {/* Admin configuration views */}
-              {currentUser.roleId === 1 && (
+              {/* Admin configuration views — shown only when Admin/Super Admin role is selected */}
+              {(currentRole?.roleId === 1 || currentRole?.role === 'Super Admin') && (
                 <>
                   <li className="header-menu">
                     <span>ADMIN SETTINGS</span>
