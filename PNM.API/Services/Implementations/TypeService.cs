@@ -17,17 +17,12 @@ public class TypeService : ITypeService
 
     public async Task<List<TypeResponse>> GetAllAsync()
     {
-        return await (
-            from x in _context.MstTypes
-            join c in _context.MstCategories on x.CatId equals c.CatId into catJoin
-            from c in catJoin.DefaultIfEmpty()
-            where x.IsActive
-            orderby x.TypeName
-            select new TypeResponse
+        return await _context.MstTypes
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.TypeName)
+            .Select(x => new TypeResponse
             {
                 TypeId = x.TypeId,
-                CatId = x.CatId,
-                CatName = c != null ? c.CatName : null,
                 TypeName = x.TypeName
             })
             .ToListAsync();
@@ -35,16 +30,11 @@ public class TypeService : ITypeService
 
     public async Task<TypeResponse?> GetByIdAsync(int typeId)
     {
-        return await (
-            from x in _context.MstTypes
-            join c in _context.MstCategories on x.CatId equals c.CatId into catJoin
-            from c in catJoin.DefaultIfEmpty()
-            where x.TypeId == typeId && x.IsActive
-            select new TypeResponse
+        return await _context.MstTypes
+            .Where(x => x.TypeId == typeId && x.IsActive)
+            .Select(x => new TypeResponse
             {
                 TypeId = x.TypeId,
-                CatId = x.CatId,
-                CatName = c != null ? c.CatName : null,
                 TypeName = x.TypeName
             })
             .FirstOrDefaultAsync();
@@ -64,12 +54,10 @@ public class TypeService : ITypeService
         var entity = new MstType
         {
             UniqueId = Guid.NewGuid().ToString("N")[..8].ToUpper(),
-            CatId = request.CatId,
             TypeName = request.TypeName,
             IsActive = true,
             CreatedBy = 0,
             CreatedOn = DateTime.Now
-            // CreatedBy will be added after CurrentUserService
         };
 
         _context.MstTypes.Add(entity);
@@ -78,7 +66,6 @@ public class TypeService : ITypeService
         return await GetByIdAsync(entity.TypeId) ?? new TypeResponse
         {
             TypeId = entity.TypeId,
-            CatId = entity.CatId,
             TypeName = entity.TypeName
         };
     }
@@ -101,10 +88,8 @@ public class TypeService : ITypeService
         if (exists)
             throw new Exception("Type already exists.");
 
-        entity.CatId = request.CatId;
         entity.TypeName = request.TypeName;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
 
         await _context.SaveChangesAsync();
 
@@ -121,14 +106,12 @@ public class TypeService : ITypeService
 
         entity.IsActive = false;
         entity.ModifiedOn = DateTime.Now;
-        // ModifiedBy will be added after CurrentUserService
 
         await _context.SaveChangesAsync();
 
         return new TypeResponse
         {
             TypeId = entity.TypeId,
-            CatId = entity.CatId,
             TypeName = entity.TypeName
         };
     }

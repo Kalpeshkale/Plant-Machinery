@@ -19,99 +19,105 @@ public class AssetService : IAssetService
 
     public async Task<List<AssetResponse>> GetAllAsync()
     {
-        return await _context.TblAssets
-            .Include(x => x.Dept)
-            .Include(x => x.Cat)
-            .Include(x => x.Type)
-            .Include(x => x.SubType)
-            .Include(x => x.Make)
-            .Include(x => x.Model)
-            .Include(x => x.Owner)
-            .Where(x => x.IsActive)
-            .OrderBy(x => x.AssetName)
-            .Select(x => new AssetResponse
-            {
-                AssetId = x.AssetId,
-                DeptId = x.DeptId,
-                DeptName = x.Dept.DeptName,
-                AssetCode = x.AssetCode,
-                AssetName = x.AssetName,
-                CatId = x.CatId,
-                CatName = x.Cat.CatName,
-                TypeId = x.TypeId,
-                TypeName = x.Type.TypeName,
-                SubTypeId = x.SubTypeId,
-                SubTypeName = x.SubType.SubTypeName,
-                MakeId = x.MakeId,
-                MakeName = x.Make.MakeName,
-                ModelId = x.ModelId,
-                ModelNo = x.Model.ModelNo,
-                OwnerId = x.OwnerId,
-                OwnerType = x.Owner.OwnerType,
-                RegistrationNo = x.RegistrationNo,
-                ChassisNo = x.ChassisNo,
-                EngineNo = x.EngineNo,
-                SerialNo = x.SerialNo,
-                MeterType = x.MeterType,
-                CurrentMeterReading = x.CurrentMeterReading,
-                FuelType = x.FuelType,
-                FuelTankCapacity = x.FuelTankCapacity,
-                PurchaseDate = x.PurchaseDate,
-                PurchaseCost = x.PurchaseCost,
-                SupplierName = x.SupplierName,
-                InvoiceNo = x.InvoiceNo,
-                AssetStatus = x.AssetStatus,
-                Remarks = x.Remarks
-            })
-            .ToListAsync();
+        var query = from a in _context.TblAssets
+                    join dept in _context.MstDepartments on a.DeptId equals dept.DeptId into deptJoin
+                    from dept in deptJoin.DefaultIfEmpty()
+                    join typ in _context.MstTypes on a.TypeId equals typ.TypeId into typeJoin
+                    from typ in typeJoin.DefaultIfEmpty()
+                    join sub in _context.MstSubTypes on a.SubTypeId equals sub.SubTypeId into subJoin
+                    from sub in subJoin.DefaultIfEmpty()
+                    join mak in _context.MstMakes on a.MakeId equals mak.MakeId into makeJoin
+                    from mak in makeJoin.DefaultIfEmpty()
+                    join mod in _context.MstModels on a.ModelId equals mod.ModelId into modelJoin
+                    from mod in modelJoin.DefaultIfEmpty()
+                    join own in _context.MstOwnerTypes on a.OwnerId equals own.OwnerId into ownerJoin
+                    from own in ownerJoin.DefaultIfEmpty()
+                    where a.IsActive
+                    orderby a.AssetName
+                    select new AssetResponse
+                    {
+                        AssetId = a.AssetId,
+                        DeptId = a.DeptId,
+                        DeptName = dept != null ? dept.DeptName : null,
+                        AssetCode = a.AssetCode,
+                        AssetName = a.AssetName,
+                        TypeId = a.TypeId,
+                        TypeName = typ != null ? typ.TypeName : null,
+                        SubTypeId = a.SubTypeId,
+                        SubTypeName = sub != null ? sub.SubTypeName : null,
+                        MakeId = a.MakeId,
+                        MakeName = mak != null ? mak.MakeName : null,
+                        ModelId = a.ModelId,
+                        ModelNo = mod != null ? mod.ModelNo : null,
+                        OwnerId = a.OwnerId,
+                        OwnerType = own != null ? own.OwnerType : null,
+                        RegistrationNo = a.RegistrationNo,
+                        ChassisNo = a.ChassisNo,
+                        EngineNo = a.EngineNo,
+                        SerialNo = a.SerialNo,
+                        MeterType = a.MeterType,
+                        CurrentMeterReading = a.CurrentMeterReading,
+                        FuelType = a.FuelType,
+                        FuelTankCapacity = a.FuelTankCapacity,
+                        PurchaseDate = a.PurchaseDate,
+                        PurchaseCost = a.PurchaseCost,
+                        SupplierName = a.SupplierName,
+                        InvoiceNo = a.InvoiceNo,
+                        AssetStatus = a.AssetStatus,
+                        Remarks = a.Remarks
+                    };
+        return await query.ToListAsync();
     }
 
     public async Task<AssetResponse?> GetByIdAsync(int assetId)
     {
-        return await _context.TblAssets
-            .Include(x => x.Dept)
-            .Include(x => x.Cat)
-            .Include(x => x.Type)
-            .Include(x => x.SubType)
-            .Include(x => x.Make)
-            .Include(x => x.Model)
-            .Include(x => x.Owner)
-            .Where(x => x.AssetId == assetId && x.IsActive)
-            .Select(x => new AssetResponse
-            {
-                AssetId = x.AssetId,
-                DeptId = x.DeptId,
-                DeptName = x.Dept.DeptName,
-                AssetCode = x.AssetCode,
-                AssetName = x.AssetName,
-                CatId = x.CatId,
-                CatName = x.Cat.CatName,
-                TypeId = x.TypeId,
-                TypeName = x.Type.TypeName,
-                SubTypeId = x.SubTypeId,
-                SubTypeName = x.SubType.SubTypeName,
-                MakeId = x.MakeId,
-                MakeName = x.Make.MakeName,
-                ModelId = x.ModelId,
-                ModelNo = x.Model.ModelNo,
-                OwnerId = x.OwnerId,
-                OwnerType = x.Owner.OwnerType,
-                RegistrationNo = x.RegistrationNo,
-                ChassisNo = x.ChassisNo,
-                EngineNo = x.EngineNo,
-                SerialNo = x.SerialNo,
-                MeterType = x.MeterType,
-                CurrentMeterReading = x.CurrentMeterReading,
-                FuelType = x.FuelType,
-                FuelTankCapacity = x.FuelTankCapacity,
-                PurchaseDate = x.PurchaseDate,
-                PurchaseCost = x.PurchaseCost,
-                SupplierName = x.SupplierName,
-                InvoiceNo = x.InvoiceNo,
-                AssetStatus = x.AssetStatus,
-                Remarks = x.Remarks
-            })
-            .FirstOrDefaultAsync();
+        var query = from a in _context.TblAssets
+                    join dept in _context.MstDepartments on a.DeptId equals dept.DeptId into deptJoin
+                    from dept in deptJoin.DefaultIfEmpty()
+                    join typ in _context.MstTypes on a.TypeId equals typ.TypeId into typeJoin
+                    from typ in typeJoin.DefaultIfEmpty()
+                    join sub in _context.MstSubTypes on a.SubTypeId equals sub.SubTypeId into subJoin
+                    from sub in subJoin.DefaultIfEmpty()
+                    join mak in _context.MstMakes on a.MakeId equals mak.MakeId into makeJoin
+                    from mak in makeJoin.DefaultIfEmpty()
+                    join mod in _context.MstModels on a.ModelId equals mod.ModelId into modelJoin
+                    from mod in modelJoin.DefaultIfEmpty()
+                    join own in _context.MstOwnerTypes on a.OwnerId equals own.OwnerId into ownerJoin
+                    from own in ownerJoin.DefaultIfEmpty()
+                    where a.AssetId == assetId && a.IsActive
+                    select new AssetResponse
+                    {
+                        AssetId = a.AssetId,
+                        DeptId = a.DeptId,
+                        DeptName = dept != null ? dept.DeptName : null,
+                        AssetCode = a.AssetCode,
+                        AssetName = a.AssetName,
+                        TypeId = a.TypeId,
+                        TypeName = typ != null ? typ.TypeName : null,
+                        SubTypeId = a.SubTypeId,
+                        SubTypeName = sub != null ? sub.SubTypeName : null,
+                        MakeId = a.MakeId,
+                        MakeName = mak != null ? mak.MakeName : null,
+                        ModelId = a.ModelId,
+                        ModelNo = mod != null ? mod.ModelNo : null,
+                        OwnerId = a.OwnerId,
+                        OwnerType = own != null ? own.OwnerType : null,
+                        RegistrationNo = a.RegistrationNo,
+                        ChassisNo = a.ChassisNo,
+                        EngineNo = a.EngineNo,
+                        SerialNo = a.SerialNo,
+                        MeterType = a.MeterType,
+                        CurrentMeterReading = a.CurrentMeterReading,
+                        FuelType = a.FuelType,
+                        FuelTankCapacity = a.FuelTankCapacity,
+                        PurchaseDate = a.PurchaseDate,
+                        PurchaseCost = a.PurchaseCost,
+                        SupplierName = a.SupplierName,
+                        InvoiceNo = a.InvoiceNo,
+                        AssetStatus = a.AssetStatus,
+                        Remarks = a.Remarks
+                    };
+        return await query.FirstOrDefaultAsync();
     }
 
     public async Task<AssetResponse> SaveAsync(AssetRequest request)
@@ -132,7 +138,6 @@ public class AssetService : IAssetService
             DeptId = request.DeptId,
             AssetCode = request.AssetCode,
             AssetName = request.AssetName,
-            CatId = request.CatId,
             TypeId = request.TypeId,
             SubTypeId = request.SubTypeId,
             MakeId = request.MakeId,
@@ -166,7 +171,6 @@ public class AssetService : IAssetService
             DeptId = entity.DeptId,
             AssetCode = entity.AssetCode,
             AssetName = entity.AssetName,
-            CatId = entity.CatId,
             TypeId = entity.TypeId,
             SubTypeId = entity.SubTypeId,
             MakeId = entity.MakeId,
@@ -211,7 +215,6 @@ public class AssetService : IAssetService
         entity.DeptId = request.DeptId;
         entity.AssetCode = request.AssetCode;
         entity.AssetName = request.AssetName;
-        entity.CatId = request.CatId;
         entity.TypeId = request.TypeId;
         entity.SubTypeId = request.SubTypeId;
         entity.MakeId = request.MakeId;
@@ -259,7 +262,6 @@ public class AssetService : IAssetService
             DeptId = entity.DeptId,
             AssetCode = entity.AssetCode,
             AssetName = entity.AssetName,
-            CatId = entity.CatId,
             TypeId = entity.TypeId,
             SubTypeId = entity.SubTypeId,
             MakeId = entity.MakeId,

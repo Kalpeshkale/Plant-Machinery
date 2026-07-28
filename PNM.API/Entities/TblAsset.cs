@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -28,7 +28,7 @@ public partial class TblAsset
     [Unicode(false)]
     public string AssetName { get; set; } = null!;
 
-    public int CatId { get; set; }
+    public int? CatId { get; set; }  // nullable — Category not used
 
     public int TypeId { get; set; }
 
@@ -105,7 +105,7 @@ public partial class TblAsset
 
     [ForeignKey("CatId")]
     [InverseProperty("TblAssets")]
-    public virtual MstCategory Cat { get; set; } = null!;
+    public virtual MstCategory? Cat { get; set; }  // optional — CatId is nullable
 
     [ForeignKey("CreatedBy")]
     [InverseProperty("TblAssetCreatedByNavigations")]

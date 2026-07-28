@@ -14,8 +14,6 @@ namespace PNM.Core.DTO.Asset
 
         public string AssetName { get; set; } = string.Empty;
 
-        public int CatId { get; set; }
-
         public int TypeId { get; set; }
 
         public int SubTypeId { get; set; }

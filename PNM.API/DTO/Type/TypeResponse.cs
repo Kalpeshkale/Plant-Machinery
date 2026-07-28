@@ -10,10 +10,6 @@ namespace PNM.Core.DTO.Type
     {
         public int TypeId { get; set; }
 
-        public int? CatId { get; set; }
-
-        public string? CatName { get; set; }
-
         public string TypeName { get; set; } = string.Empty;
     }
 }

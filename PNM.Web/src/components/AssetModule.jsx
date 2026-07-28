@@ -145,10 +145,10 @@ export default function AssetModule() {
   };
 
   /* ── Cascading selects ── */
-  const filteredTypes    = allTypes; // show all types — no category filter
-  const filteredSubTypes = allSubTypes.filter(s => s.typeId  === form.typeId);
-  const filteredMakes    = allMakes.filter(m => m.subTypeId  === form.subTypeId);
-  const filteredModels   = allModels.filter(m => m.makeId    === form.makeId);
+  const filteredTypes    = allTypes;    // no category filter
+  const filteredSubTypes = allSubTypes; // no typeId filter — DB has null FK
+  const filteredMakes    = allMakes;    // no subTypeId filter — DB has null FK
+  const filteredModels   = allModels;   // no makeId filter — DB has null FK
 
   /* ── Modal open ── */
   const openAdd = () => {
@@ -519,7 +519,7 @@ export default function AssetModule() {
                   <FormRow>
                     <FormGroup label="Sub Type" required>
                       <select name="subTypeId" className="form-control" required value={form.subTypeId}
-                        onChange={handleSubTypeChange} disabled={!form.typeId}>
+                        onChange={handleSubTypeChange}>
                         <option value="">-- Select SubType --</option>
                         {filteredSubTypes.map(s => (
                           <option key={s.subTypeId} value={s.subTypeId}>{s.subTypeName}</option>
@@ -528,7 +528,7 @@ export default function AssetModule() {
                     </FormGroup>
                     <FormGroup label="Make (Manufacturer)" required>
                       <select name="makeId" className="form-control" required value={form.makeId}
-                        onChange={handleMakeChange} disabled={!form.subTypeId}>
+                        onChange={handleMakeChange}>
                         <option value="">-- Select Make --</option>
                         {filteredMakes.map(m => (
                           <option key={m.makeId} value={m.makeId}>{m.makeName}</option>
@@ -537,7 +537,7 @@ export default function AssetModule() {
                     </FormGroup>
                     <FormGroup label="Model No." required>
                       <select name="modelId" className="form-control" required value={form.modelId}
-                        onChange={handleInput} disabled={!form.makeId}>
+                        onChange={handleInput}>
                         <option value="">-- Select Model --</option>
                         {filteredModels.map(m => (
                           <option key={m.modelId} value={m.modelId}>{m.modelNo}</option>

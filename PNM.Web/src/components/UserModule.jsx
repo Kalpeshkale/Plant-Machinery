@@ -229,7 +229,7 @@ export default function UserModule() {
   return (
     <div className="animate-fade">
 
-      {/* ── Summary Cards ── */}
+{/*      
       <div style={{ display:"flex", gap:"16px", marginBottom:"24px", flexWrap:"wrap" }}>
         {[
           { label:"Total Users",  value:users.length,           icon:"ti-user",  color:"var(--primary-color)" },
@@ -247,7 +247,7 @@ export default function UserModule() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* ── Toolbar ── */}
       <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"20px", flexWrap:"wrap" }}>

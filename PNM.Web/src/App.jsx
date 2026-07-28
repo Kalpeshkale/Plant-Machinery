@@ -15,6 +15,7 @@ import UserModule from './components/UserModule';
 import ProjectMachineModule from './components/ProjectMachineModule';
 import ProjectOperatorModule from './components/ProjectOperatorModule';
 import MachineOperatorModule from './components/MachineOperatorModule';
+import LogsModule from './components/LogsModule';
 import { Settings, Sliders, Sun, Moon } from 'lucide-react';
 
 // Mapping strings to Lucide icon components dynamically
@@ -156,6 +157,11 @@ export default function App() {
       case "assetop":
       case "machinetooperator":
         return <MachineOperatorModule />;
+      case "logs":
+      case "dailylogs":
+      case "dailylog":
+      case "log":
+        return <LogsModule />;
       case "dashboard":
       default:
         return (
